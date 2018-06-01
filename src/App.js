@@ -1,32 +1,13 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import './App.css';
 
-const chords = [
-  'maj7',
-  'min7',
-  '7',
-  'dim7',
-  'min7b5',
-  'min7b5',
-];
+const notes = ['A','Bb','B','C','C#','D','Eb','E','F','F#','G','Ab'];
 
-const notes = [
-  'A',
-  'Bb',
-  'B',
-  'C',
-  'C#',
-  'D',
-  'D#',
-  'E',
-  'Eb',
-  'F',
-  'F#',
-  'G',
-  'G#'
-];
+const getChordTypes = toggledChords =>
+  Object.entries(toggledChords).reduce((acc, [key, value]) =>
+    [...acc, ...(value ? [key] : [])], []);
 
-const allChords = notes.reduce((acc, note) => {
+const getAllChords = (chords, notes) => notes.reduce((acc, note) => {
   return [
     ...acc,
     ...chords.map(chord => `${note}${chord}`)
@@ -39,7 +20,20 @@ const without = (el, arr) => arr.filter(e => e !== el);
 class App extends Component {
   constructor(props) {
     super(props);
+
+    const initialChordOptions = {
+      'maj7': true,
+      'min7': true,
+      '7': true,
+      'dim7': true,
+      'min7b5': true,
+    };
+
+    const allChords = getAllChords(getChordTypes(initialChordOptions), notes);
+
     this.state = {
+      chordOptions: initialChordOptions,
+      allChords,
       chord: choose(allChords),
       timer: 5,
       timerLength: 5
@@ -58,27 +52,55 @@ class App extends Component {
   }
 
   getNextChord = () => {
-    return choose(without(this.state.chord, allChords));
+    return choose(without(this.state.chord, this.state.allChords));
   }
+
+  onToggleChordType = chordOption => e => this.setState({
+    chordOptions: {
+      ...this.state.chordOptions,
+      [chordOption]: e.target.checked
+    }
+  }, () => {
+    this.setState({
+      allChords: getAllChords(getChordTypes(this.state.chordOptions), notes)
+    });
+  });
 
   render() {
     return (
       <div className="App">
         <h1>{this.state.chord}</h1>
-        <button onClick={() => this.setState({chord: this.getNextChord()})}>Next chord in {this.state.timer}</button>
+        <button
+          onClick={() => this.setState({chord: this.getNextChord(), timer: this.state.timerLength})}
+        >Next chord in {this.state.timer}</button>
         <hr/>
         {this.state.timerLength} seconds between chords:<br/>
         <input
           type="range"
           step={1}
           min={1}
-          max={10}
+          max={15}
           value={this.state.timerLength}
           onChange={e => this.setState({timerLength: e.target.value})}
         />
+        <p>
+          {
+            Object.keys(this.state.chordOptions).map(chordOption =>
+              <Fragment key={chordOption}>
+                {chordOption}: <input
+                  type="checkbox"
+                  defaultChecked={this.state.chordOptions[chordOption]}
+                  onChange={this.onToggleChordType(chordOption)}
+                /> &nbsp;
+              </Fragment>
+            )
+          }
+        </p>
       </div>
     );
   }
 }
+
+/* onChange= */
 
 export default App;
