@@ -1,45 +1,24 @@
 import React, { Component, Fragment } from 'react';
-import './App.css';
-
-const notes = ['A','Bb','B','C','C#','D','Eb','E','F','F#','G','Ab'];
-
-const getChordTypes = toggledChords =>
-  Object.entries(toggledChords).reduce((acc, [key, value]) =>
-    [...acc, ...(value ? [key] : [])], []);
-
-const getAllChords = (chords, notes) => notes.reduce((acc, note) => {
-  return [
-    ...acc,
-    ...chords.map(chord => `${note}${chord}`)
-  ];
-}, []);
-
-const choose = arr => arr[ Math.floor(Math.random() * arr.length) ];
-const without = (el, arr) => arr.filter(e => e !== el);
+import getInitialState from './state';
+import notes from './notes';
+import {
+  getChordTypes,
+  getAllChords,
+  choose,
+  without,
+} from './util';
+import ChordDiagrams from './ChordDiagrams';
+import ChordTypesSelector from './ChordTypesSelector';
 
 class App extends Component {
   constructor(props) {
     super(props);
+    this.state = getInitialState();
+    this.createInterval();
+  }
 
-    const initialChordOptions = {
-      'maj7': true,
-      'min7': true,
-      '7': true,
-      'dim7': true,
-      'min7b5': true,
-    };
-
-    const allChords = getAllChords(getChordTypes(initialChordOptions), notes);
-
-    this.state = {
-      chordOptions: initialChordOptions,
-      allChords,
-      chord: choose(allChords),
-      timer: 5,
-      timerLength: 5
-    };
-
-    setInterval(() => {
+  createInterval = () => {
+    this.interval = setInterval(() => {
       if (this.state.timer - 1 <= 0) {
         this.setState({
           timer: this.state.timerLength,
@@ -55,21 +34,24 @@ class App extends Component {
     return choose(without(this.state.chord, this.state.allChords));
   }
 
-  onToggleChordType = chordOption => e => this.setState({
-    chordOptions: {
+  onToggleChordType = chordOption => e => {
+    const newChordOptions = {
       ...this.state.chordOptions,
       [chordOption]: e.target.checked
-    }
-  }, () => {
+    };
+
     this.setState({
-      allChords: getAllChords(getChordTypes(this.state.chordOptions), notes)
+      chordOptions: newChordOptions,
+      allChords: getAllChords(getChordTypes(newChordOptions), notes)
     });
-  });
+  }
 
   render() {
     return (
       <div className="App">
         <h1>{this.state.chord}</h1>
+        <ChordDiagrams chord={this.state.chord} />
+        <br/>
         <button
           onClick={() => this.setState({chord: this.getNextChord(), timer: this.state.timerLength})}
         >Next chord in {this.state.timer}</button>
@@ -84,23 +66,14 @@ class App extends Component {
           onChange={e => this.setState({timerLength: e.target.value})}
         />
         <p>
-          {
-            Object.keys(this.state.chordOptions).map(chordOption =>
-              <Fragment key={chordOption}>
-                {chordOption}: <input
-                  type="checkbox"
-                  defaultChecked={this.state.chordOptions[chordOption]}
-                  onChange={this.onToggleChordType(chordOption)}
-                /> &nbsp;
-              </Fragment>
-            )
-          }
+          <ChordTypesSelector
+            chordOptions={this.state.chordOptions}
+            onToggle={this.onToggleChordType}
+          />
         </p>
       </div>
     );
   }
 }
-
-/* onChange= */
 
 export default App;
