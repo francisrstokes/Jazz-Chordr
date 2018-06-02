@@ -2,7 +2,7 @@
 
 ![Screenshot of the application running](screenshot.png)
 
-Memorise jazz chords by playing the corresponding chord on screen, which changes every few seconds.
+Memorise the basic jazz chords.
 
 Use the slider to extend or shorten the time between chord changes.
 

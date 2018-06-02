@@ -2,6 +2,7 @@
   "name": "flashcarder",
   "version": "0.1.0",
   "private": true,
+  "homepage": "http://francisrstokes.github.io/Jazz-Chordr",
   "dependencies": {
     "react": "^16.4.0",
     "react-dom": "^16.4.0",
@@ -12,10 +13,11 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "build:gh-pages": "git checkout gh-pages && yarn build && git commit -m 'Latest build' && git push origin gh-pages"
+    "build:gh-pages": "gh-pages -d build"
   },
   "devDependencies": {
     "babel-eslint": "^8.2.3",
-    "eslint": "^4.19.1"
+    "eslint": "^4.19.1",
+    "gh-pages": "^1.2.0"
   }
 }
